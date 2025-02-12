@@ -1,23 +1,33 @@
 #!/usr/bin/env python3
 
 # args: 
-#   1: input file name, defaults to input.mp4
-#   2: output file name, defaults to output.mp4
-#   3: max frames to transform, 0 means unlimited and is the default
-#   4: shape, default -> wth, allowed: thw, wth
+#   1: input file name
+#   2: output file name, defaults to time_{input-file-name}.mp4
+#   3: max frames to transform, 0 means max of width and height (default), -1 means unlimited
+#   4: shape, default -> wth, allowed: wth, thw
 
 from sys import argv
+from os import system
 import cv2
 import numpy as np
 
 # Load video
-video_path = "input.mp4"
 if len(argv) > 1:
     video_path = argv[1]
-output_path = "output.mp4"
+else:
+    print("you must specify input file name as a 1st argument.")
+    exit(1)
+
 if len(argv) > 2:
     output_path = argv[2]
-print(f"reading {video_path}.")
+else:
+    output_path = 'time_' + video_path
+    if not output_path.lower().endswith('.mp4'):
+        output_path += '.mp4'
+
+print(f"reading {video_path}, will write to {output_path}.")
+
+# Read the video
 cap = cv2.VideoCapture(video_path)
 
 # Get video properties
@@ -27,15 +37,20 @@ frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = cap.get(cv2.CAP_PROP_FPS)
 if frame_count == 0 or frame_width == 0 or frame_height == 0 or fps == 0:
     print(f"cannot decode {video_path}.")
-    exit(1)
+    exit(2)
 print(f"{video_path}: {frame_width}x{frame_height}, {fps} FPS, {frame_count} frames.")
 
-# Read frames into a NumPy array
-frames = []
+# Handle max frames
 max_frames = 0
 if len(argv) > 3:
     max_frames = int(argv[3])
-    print(f"processing no more than {max_frames}.")
+    print(f"processing no more than {max_frames} frames (0=max of width/height, -1=unlimited).")
+
+if max_frames == 0:
+    max_frames = frame_width
+    if frame_height > max_frames:
+        max_frames = frame_height
+    print(f"processing no more than {max_frames} frames")
 
 # shapes
 shape = 'wth'
@@ -43,6 +58,8 @@ if len(argv) > 4:
     shape = argv[4].lower()
 print(f"new shape {shape}, allowed: thw, wth")
 
+# Read frames into a NumPy array
+frames = []
 n = 0
 while cap.isOpened():
     ret, frame = cap.read()
@@ -54,6 +71,7 @@ while cap.isOpened():
         break
 cap.release()
 print(f"read {len(frames)} frames.")
+
 # Shape: (T, H, W, C)
 frames = np.array(frames)
 print(f"created NP array ({n} items).")
@@ -85,4 +103,7 @@ for i in range(new_frame_count):
 
 out.release()
 print(f"transformed video saved as {output_path}.")
-print(f"consider now h265.sh {output_path}")
+# print(f"consider now h265.sh {output_path}")
+cmd = f"ffmpeg -loglevel error -hide_banner -nostats -y -threads 16 -re -i '{output_path}' -c:v libx265 -x265-params log-level=error -crf 29 -preset slow -an 'tmp_{output_path}' && mv 'tmp_{output_path}' '{output_path}' && ls -l '{output_path}'"
+print(cmd)
+system(cmd)

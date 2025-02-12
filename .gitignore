@@ -173,3 +173,4 @@ cython_debug/
 *.mov
 *.avi
 *.m*pg
+*.swp
