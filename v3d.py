@@ -47,7 +47,7 @@ if len(argv) > 3:
     print(f"processing no more than {max_frames} frames (0=average of width/height, -1=unlimited).")
 
 if max_frames == 0:
-    max_frames = ((frame_width + frame_height) / 4) * 2
+    max_frames = int((frame_width + frame_height) / 4) * 2
     print(f"processing no more than {max_frames} frames")
 
 # shapes
