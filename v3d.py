@@ -4,7 +4,7 @@
 #   1: input file name, defaults to input.mp4
 #   2: output file name, defaults to output.mp4
 #   3: max frames to transform, 0 means unlimited and is the default
-#   4: shape, default -> thw, allowed: twh, wht
+#   4: shape, default -> wth, allowed: thw, wth
 
 from sys import argv
 import cv2
@@ -38,7 +38,7 @@ if len(argv) > 3:
     print(f"processing no more than {max_frames}.")
 
 # shapes
-shape = 'thw'
+shape = 'wth'
 if len(argv) > 4:
     shape = argv[4].lower()
 print(f"new shape {shape}, allowed: thw, wth")
@@ -58,12 +58,12 @@ print(f"read {len(frames)} frames.")
 frames = np.array(frames)
 print(f"created NP array ({n} items).")
 
-if shape == 'thw':
-    # Swap time and width dimensions (T, H, W, C) → (W, H, T, C)
-    transformed = np.transpose(frames, (2, 1, 0, 3))
-elif shape == 'wth':
+if shape == 'wth':
     # Swap height and time dimensions (T, H, W, C) → (W, T, H, C)
     transformed = np.transpose(frames, (2, 0, 1, 3))
+elif shape == 'thw':
+    # Swap time and width dimensions (T, H, W, C) → (W, H, T, C)
+    transformed = np.transpose(frames, (2, 1, 0, 3))
 else:
     print(f"unknown new shape {shape} just applying MJPEG re-encoding.")
     transformed = np.transpose(frames, (0, 1, 2, 3))
@@ -85,3 +85,4 @@ for i in range(new_frame_count):
 
 out.release()
 print(f"transformed video saved as {output_path}.")
+print(f"consider now h265.sh {output_path}")
