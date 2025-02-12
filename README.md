@@ -2,6 +2,9 @@
 
 See time as a spatial dimension (horizontal or vertical) and travel through image's height or width as change in time.
 
+
+Example [input](https://youtu.be/LKvIj2LGmgw) translated via `thw` looks like [this](https://youtu.be/dXVfFekDYEM).
+
 This treats video as a 3 dimensional cube (width x height x frames) where there are `frames` of `(width x height)`.
 Then it translates it to:
 
