@@ -4,7 +4,7 @@
 #   1: input file name, defaults to input.mp4
 #   2: output file name, defaults to output.mp4
 #   3: max frames to transform, 0 means unlimited and is the default
-#   4: shape, default -> thw, wth
+#   4: shape, default -> thw, allowed: twh, wht
 
 from sys import argv
 import cv2
@@ -41,7 +41,7 @@ if len(argv) > 3:
 shape = 'thw'
 if len(argv) > 4:
     shape = argv[4].lower()
-print(f"new shape {shape}.")
+print(f"new shape {shape}, allowed: thw, wth")
 
 n = 0
 while cap.isOpened():
