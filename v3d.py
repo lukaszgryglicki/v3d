@@ -3,8 +3,8 @@
 # args: 
 #   1: input file name
 #   2: output file name, defaults to time_{input-file-name}.mp4
-#   3: max frames to transform, 0 means max of width and height (default), -1 means unlimited
-#   4: shape, default -> wth, allowed: wth, thw
+#   3: max frames to transform, 0 means avg of width and height (default), -1 means unlimited
+#   4: shape, default -> thw, allowed: wth, thw
 
 from sys import argv
 from os import system
@@ -44,16 +44,14 @@ print(f"{video_path}: {frame_width}x{frame_height}, {fps} FPS, {frame_count} fra
 max_frames = 0
 if len(argv) > 3:
     max_frames = int(argv[3])
-    print(f"processing no more than {max_frames} frames (0=max of width/height, -1=unlimited).")
+    print(f"processing no more than {max_frames} frames (0=average of width/height, -1=unlimited).")
 
 if max_frames == 0:
-    max_frames = frame_width
-    if frame_height > max_frames:
-        max_frames = frame_height
+    max_frames = ((frame_width + frame_height) / 4) * 2
     print(f"processing no more than {max_frames} frames")
 
 # shapes
-shape = 'wth'
+shape = 'thw'
 if len(argv) > 4:
     shape = argv[4].lower()
 print(f"new shape {shape}, allowed: thw, wth")
